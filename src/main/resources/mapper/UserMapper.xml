@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiqi.dao.UserDao">
+
+	<resultMap type="com.weiqi.entity.User" id="User">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="createTime" column="create_time" />
+			<result property="birthday" column="birthday" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="roleId" column="role_id" />
+		<result property="note" column="note" />
+		<result property="status" column="status" />
+	</resultMap>
+
+	<select id="getUserById" resultMap="User">
+		select * from user
+		where id =
+		#{id}
+	</select>
+
+	<select id="selUserByUsername" resultMap="User">
+		select * from user
+		where username = #{username}
+	</select>
+
+	<select id="getAllUserList" resultMap="User" parameterType="com.weiqi.entity.UserSearch">
+		select * from user
+		<where>
+		1=1
+			<if test="null != username and '' != username">
+				and username like "%"#{username}"%"
+			</if>
+			
+			<if test="null != status and -1 != status">
+				and status = #{status}
+			</if>
+			<if test=" 0 != roleId">
+				and role_id = #{roleId}
+			</if>
+			<if test="null != createTimeStart and null != createTimeEnd and '' != createTimeStart and '' != createTimeEnd">
+				and create_time between #{createTimeStart} and #{createTimeEnd}
+			</if>
+			<if test="'' != createTimeStart and '' == createTimeEnd">
+				and create_time between #{createTimeStart} and curtime()
+			</if>
+			<if test="'' == createTimeStart and '' != createTimeEnd">
+				and create_time between '1900-01-01 00:00:00' and #{createTimeEnd}
+			</if>
+			<if test="null != birthdayStart and null != birthdayEnd and '' != birthdayStart and '' != birthdayEnd">
+				and birthday between #{birthdayStart} and #{birthdayEnd}
+			</if>
+			<if test="'' != birthdayStart and '' == birthdayEnd">
+				and birthday between #{birthdayStart} and curdate()
+			</if>
+			<if test="'' == birthdayStart and '' != birthdayEnd">
+				and birthday between '1900-01-01' and #{birthdayEnd}
+			</if>
+		</where>
+		
+	</select>
+
+	<update id="updateUserStatusById">
+		update user
+		<set>
+			<if test="status != null">
+				status = #{status},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<update id="deleteUserById">
+		delete from user
+		where id = #{id}
+	</update>
+	
+	<update id="insertUser" parameterType="com.weiqi.entity.User">
+		insert into user
+		(username,password,create_time,birthday,phone,email,role_id,note,status)
+		values(#{username},#{password},#{createTime},#{birthday},#{phone},#{email},#{roleId},#{note},#{status})
+	</update>
+
+	<update id="updateUser" parameterType="com.weiqi.entity.User">
+		update user
+		<set>
+			<if test="password != null">
+				password = #{password},
+			</if>
+			
+			<if test="email != null">
+				email = #{email},
+			</if>
+			
+			<if test="note != null">
+				note = #{note},
+			</if>
+			<if test="roleId != null">
+				role_id = #{roleId},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime},
+			</if>
+			<if test="birthday != null">
+				birthday = #{birthday},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+</mapper>
